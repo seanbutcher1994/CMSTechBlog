@@ -1,9 +1,6 @@
 const router = require('express').Router();
-// const User = require('../models/User');
-// const Post = require('../models/Post');
-// const Comment = require('../models/Comment');
-
 const { User, Post, Comment } = require('../models')
+const auth = require('../utils/auth')
 
 router.get('/', async (req, res) => {
     try {
@@ -44,6 +41,24 @@ router.get('/post/:id', async (req, res) => {
     } catch (error) {
         res.status(500).json(error)
     }
-})
+});
+
+router.get('/user/:id', /* auth */ async (req, res) => {
+    try {
+        const userData = await User.findByPk(req.params.id, {
+            attributes: { exclude: ['password'] },
+            include: [
+                {
+                    model: Post,
+                    attributes: ['id', 'title', 'content']
+                },
+            ],
+        });
+        const user = userData.get({ plain: true });
+        res.status(200).json(user)
+    } catch (error) {
+        res.status(500).json(error)
+    }
+});
 
 module.exports = router;
