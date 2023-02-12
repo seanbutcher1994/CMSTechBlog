@@ -43,6 +43,7 @@ router.get('/post/:id', async (req, res) => {
     }
 });
 
+// FOR PROFILE SCREEN
 router.get('/user/:id', /* auth */ async (req, res) => {
     try {
         const userData = await User.findByPk(req.params.id, {
@@ -60,5 +61,26 @@ router.get('/user/:id', /* auth */ async (req, res) => {
         res.status(500).json(error)
     }
 });
+
+// FOR DASHBOARD SCREEN
+router.get('/dashboard', /* auth, */ async (req, res) => {
+    try {
+        const userData = await User.findByPk(req.session.user_id, {
+            attributes: { exclude: ['password'] },
+            include: [
+                {
+                    model: Post,
+                    attributes: ['id', 'title', 'content']
+                },
+            ],
+        })
+        const user = userData.get({ plain: true });
+        res.status(200).json(user)
+    } catch (error) {
+        res.status(500).json(error)
+    }
+});
+
+
 
 module.exports = router;
